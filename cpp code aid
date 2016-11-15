@@ -1,0 +1,195 @@
+/*
+Insert your Analysis here.  Then submit in zyBook.  Then hit ready to grade in Ycode.
+*/
+
+/* Midterm 2 - "Notes App"
+Professors Tony Martinez and Kevin Seppi 11/02/2016
+This is a simple program which lets you manage a list of notes with a number of user options.
+The goal is to test your overall programming skills with special emphasis on functions and vectors
+*/
+
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+void OutputMenu() {
+	cout << "Options for the Notes program are: " << endl;
+	cout << "\"add\" - Add a note." << endl;
+	cout << "\"print\" - Print notes." << endl;
+	cout << "\"remove\" - Remove a note." << endl;
+	cout << "\"insert\" - Insert a note." << endl;
+	cout << "\"replacefirst\" - Replace first occurrence of a phrase in each note." << endl;
+	cout << "\"replaceall\" - Replace all occurrences of a phrase in each note." << endl;
+	cout << "\"quit\" - quit the Notes program." << endl;
+}
+
+void AddNote(vector<string>& notes) {
+	string newNote;
+
+	cout << "Enter note: " << endl;
+	cin.ignore();
+	getline(cin, newNote);
+	notes.push_back(newNote);
+}
+
+void PrintNotes(const vector<string>& notes) { // could have passed by value, but just showing here the faster alternative
+
+	cout << "Current List of notes: " << endl;
+	for (unsigned int noteCount = 1; noteCount <= notes.size(); ++noteCount) {
+		cout << "Note " << noteCount << ": ";
+		cout << notes.at(noteCount - 1) << endl;
+	}
+}
+
+vector<string> DeleteStringFromVector(vector<string> usrVector, unsigned int index) {
+	vector<string> updatedVector;
+
+	for (unsigned int i = 0; i < usrVector.size(); ++i) {
+		if (i != index) {
+			updatedVector.push_back(usrVector.at(i));
+		}
+	}
+	return updatedVector;
+}
+
+void InsertStringInVector(vector<string>& usrVector, unsigned int index, string newElement) {
+
+	usrVector.push_back("This just extends the vector by one and will be written over");
+	for (unsigned int i = usrVector.size() - 1; i > index; --i) {
+		usrVector.at(i) = usrVector.at(i - 1);
+	}
+	usrVector.at(index) = newElement;
+}
+
+int ReplaceFirstPhrase(vector<string>& usrVector, string searchPhrase, string replacePhrase) {
+	int count = 0;
+
+	for (unsigned int i = 0; i < usrVector.size(); ++i) {
+		if (usrVector.at(i).find(searchPhrase) != string::npos) {
+			usrVector.at(i).replace(usrVector.at(i).find(searchPhrase), searchPhrase.size(), replacePhrase);
+			count++;
+		}
+	}
+	return count;
+}
+
+int ReplaceAllPhrases(vector<string>& usrVector, string searchPhrase, string replacePhrase) {
+	int count = 0;
+	int stringIndex = 0;
+
+	for (unsigned int i = 0; i < usrVector.size(); ++i) {
+		stringIndex = usrVector.at(i).find(searchPhrase);
+		while (stringIndex != string::npos) {
+			usrVector.at(i).replace(stringIndex, searchPhrase.size(), replacePhrase);
+			count++;
+			stringIndex = usrVector.at(i).find(searchPhrase, stringIndex + replacePhrase.size()); 
+				// if you don't add replacePhrase size to StringIndex you will infinite loop if replace
+			   // phrase contains search phrase.  But we were kind and did not test you on that.
+		}
+	}
+	return count;
+}
+
+/* There are other approaches you could have used for the replace phrase operations.
+One is to have replaced both functions above with just one, using a default parameter for the number of replacements you want per note.
+
+Even better would be to write a general function for replacing phrases in a string and then calling that function from
+your replace first and replace all functions.  The reason is that replace phrases in a string is something you would use
+all the time, while replace phrases in a set of notes is less common.  So here would be the full version.
+
+int ReplacePhrase(string& text, string searchPhrase, string replacePhrase, int maxReplace = INT_MAX) {
+	int count = 0;
+	int stringIndex = text.find(searchPhrase);
+
+	while (stringIndex != string::npos && count < maxReplace) {
+		text.replace(stringIndex, searchPhrase.size(), replacePhrase);
+		count++;
+		stringIndex = text.find(searchPhrase, stringIndex + replacePhrase.size());
+	}
+	return count;
+}
+
+int ReplaceFirstPhrase(vector<string>& usrVector, string searchPhrase, string replacePhrase) {
+	int count = 0;
+
+	for (unsigned int i = 0; i < usrVector.size(); ++i) {
+		count += ReplacePhrase(usrVector.at(i), searchPhrase, replacePhrase, 1);
+	}
+	return count;
+}
+
+int ReplaceAllPhrases(vector<string>& usrVector, string searchPhrase, string replacePhrase) {
+	int count = 0;
+
+	for (unsigned int i = 0; i < usrVector.size(); ++i) {
+		count += ReplacePhrase(usrVector.at(i), searchPhrase, replacePhrase);
+	}
+	return count;
+}
+*/
+
+int main() {
+	unsigned int noteNumber = 0;
+	string newNote;
+	string usrOption;
+	string searchPhrase;
+	string replacePhrase;
+	vector<string> notes;  // since this is so common for this program, a one word variable is not unreasonable, and actually may simplify reading
+	vector<string> orderedNotes;
+
+	cout << "*** Notes Program *** - type \"list\" to see options" << endl;
+	do {
+		cout << endl << "Option: ";
+		cout << endl; // endl is just for running in zyBooks
+		cin >> usrOption;
+		if (usrOption == "list") {
+			OutputMenu();
+		}
+
+		else if (usrOption == "add") {
+			AddNote(notes);
+		}
+
+		else if (usrOption == "print") {
+			PrintNotes(notes);
+		}
+
+		else if (usrOption == "remove") {
+			cout << "Note number to remove: " << endl;
+			cin >> noteNumber;
+			notes = DeleteStringFromVector(notes, noteNumber - 1);
+		}
+
+		else if (usrOption == "insert") {
+			cout << "New inserted note number: " << endl;
+			cin >> noteNumber;
+			cout << "Enter new note: " << endl;
+			cin.ignore();
+			getline(cin, newNote);
+			InsertStringInVector(notes, noteNumber - 1, newNote);
+		}
+
+		else if (usrOption == "replacefirst") {
+			cout << "Enter search phrase: " << endl;
+			cin.ignore();
+			getline(cin, searchPhrase);
+			cout << "Enter replace phrase: " << endl;
+			getline(cin, replacePhrase);
+			cout << ReplaceFirstPhrase(notes, searchPhrase, replacePhrase) << " replacements done." << endl;
+		}
+
+		else if (usrOption == "replaceall") {
+			cout << "Enter search phrase: " << endl;
+			cin.ignore();
+			getline(cin, searchPhrase);
+			cout << "Enter replace phrase: " << endl;
+			getline(cin, replacePhrase);
+			cout << ReplaceAllPhrases(notes, searchPhrase, replacePhrase) << " replacements done." << endl;
+		}
+
+	} while (usrOption != "quit");
+
+	cout << "Good Bye.";
+	return 0;
+}
